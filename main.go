@@ -20,11 +20,15 @@ func main() {
 			continue
 		}
 
-		if input == "exit" {
+		parts := strings.Fields(input)
+		var command = parts[0]
+		var args = parts[1:]
+
+		if command == "exit" {
 			os.Exit(0)
 		}
 
-		cmd := exec.Command(input)
+		cmd := exec.Command(command, args...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
