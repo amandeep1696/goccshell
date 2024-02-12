@@ -16,6 +16,10 @@ func main() {
 		input, _ := reader.ReadString('\n')
 		input = strings.TrimSpace(input)
 
+		if input == "" {
+			continue
+		}
+
 		if input == "exit" {
 			os.Exit(0)
 		}
@@ -24,6 +28,9 @@ func main() {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		cmd.Run()
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
