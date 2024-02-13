@@ -10,19 +10,11 @@ import (
 	"strings"
 )
 
-func pwd(w *io.PipeWriter) {
-	defer w.Close()
-	dir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Fprintln(w, dir)
-}
-
 func main() {
-	for {
-		signal.Ignore(os.Interrupt)
+	signal.Ignore(os.Interrupt)
+	history := NewHistory()
 
+	for {
 		fmt.Print("ccsh> ")
 
 		reader := bufio.NewReader(os.Stdin)
@@ -38,14 +30,17 @@ func main() {
 		var cmds []*exec.Cmd
 		var output io.ReadCloser
 
-		for _, command := range commands {
-			command = strings.TrimSpace(command)
-			parts := strings.Fields(command)
+		for _, commandLine := range commands {
+			commandLine = strings.TrimSpace(commandLine)
+			history.AddCommand(commandLine)
+
+			parts := strings.Fields(commandLine)
 			var command = parts[0]
 			var args = parts[1:]
 
 			switch command {
 			case "exit":
+				history.file.Close()
 				os.Exit(0)
 
 			case "cd":
@@ -62,9 +57,14 @@ func main() {
 					fmt.Printf("%v\n", err)
 				}
 
+			case "history":
+				for i, hc := range history.commands {
+					fmt.Printf("%d: %s\n", i, hc)
+				}
+
 			case "pwd":
 				pr, pw := io.Pipe()
-				go pwd(pw)
+				go Pwd(pw)
 				if len(commands) == 1 {
 					io.Copy(os.Stdout, pr)
 				} else {
