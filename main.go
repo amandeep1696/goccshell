@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
 )
 
@@ -20,6 +21,8 @@ func pwd(w *io.PipeWriter) {
 
 func main() {
 	for {
+		signal.Ignore(os.Interrupt)
+
 		fmt.Print("ccsh> ")
 
 		reader := bufio.NewReader(os.Stdin)
